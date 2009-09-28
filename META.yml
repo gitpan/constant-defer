@@ -1,0 +1,52 @@
+--- #YAML:1.0
+name:               constant-defer
+version:            1
+abstract:           Constant subs with deferred value calculation.
+author:
+    - Kevin Ryde <user42@zip.com.au>
+license:            gpl
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
+requires:
+    Test::More:  0
+    vars:        0
+    warnings:    0
+resources:
+    homepage:  http://user42.tuxfamily.org/constant-defer/index.html
+    license:   http://www.gnu.org/licenses/gpl.html
+no_index:
+    directory:
+        - t
+        - inc
+        - devel
+generated_by:       ExtUtils::MakeMaker version 6.55_02
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4
+optional_features:
+    maximum_devel:
+        description:  Stuff used variously for development.
+        requires:
+            base:          0
+            Data::Dumper:  0
+            File::Spec:    0
+            lib::abs:      0
+            Scalar::Util:  0
+            warnings:      0
+    maximum_tests:
+        description:  Have "make test" do as much as possible.
+        requires:
+            File::Spec:          0
+            FindBin:             0
+            Parse::CPAN::Meta:   0
+            Scalar::Util:        0
+            Test::DistManifest:  0
+            Test::NoWarnings:    0
+            Test::Pod:           1.00
+            YAML:                0
+            YAML::Syck:          0
+            YAML::Tiny:          0
+            YAML::XS:            0

@@ -1,0 +1,52 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.55.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 8624bcdae55baeef00cd11d5dfcfa60f68710a02 COPYING
+SHA1 e4121cd44a021a0a3939aa709fd47114b80b86e7 Changes
+SHA1 583b821ac4dc5e37ac3bacf37234005b1ca0bc06 MANIFEST
+SHA1 13c1f4ba3cd5cd6a7fff24c88cb5453250289bdb MANIFEST.SKIP
+SHA1 b90d080522606262530e14645f89e0f3a511ab62 META.yml
+SHA1 cf12111d74add574237b86f32ec266623af271a8 Makefile.PL
+SHA1 16a62183a94aa6d126c0be4a22a28f16b17e8c42 README
+SHA1 47d14ce07cf31de908cea326ae5f5df6972e2905 debian/changelog
+SHA1 ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4 debian/compat
+SHA1 3792de6fd3462e59649d12c1919c45ddea6b8a43 debian/control
+SHA1 1847b5a0380e32058a1130171671fd38b58a1977 debian/copyright
+SHA1 0c428f2f76357f42a222b74aa4d01e3dcf82c080 debian/rules
+SHA1 7dbe6d7d60aa7d008194241d9ae7d9190c9cf2a4 debian/watch
+SHA1 51d58edc4faf28e6dadbd6f19796f5f52ef6fbe7 devel/Memoize/ToConstant.pm
+SHA1 6ba73e607fd311d6fb77332ee61fcb317e7ed92f devel/Memoize/ToConstant.t
+SHA1 a47696a45185dedbd80dcd43114e08b901c53337 devel/Memoize/t-memoize-toconst-2.pl
+SHA1 6b881d857b5b9e884dc2bd1b10d2ca587c58c105 devel/Memoize/t-memoize-toconst.pl
+SHA1 447eb23a9e5506effc6b1bd7eb3334f0cac26b59 devel/MyConstantDeferExport.pm
+SHA1 7bf6a08cfca4e7ad72ff852815a9bf88edd8c471 devel/Singleton/Const.pm
+SHA1 3f2cb6c383bab6798b518493df846144f3f93712 devel/import.pl
+SHA1 d7a32a92db6d4aae3905df59783eae25257f2c77 devel/run.pl
+SHA1 9d078ad07df94e02910e66741c5d3ef913b76b61 examples/instance.pl
+SHA1 cdd66ded7225fbdb1c65eeb6d23704aafc7c9033 examples/simple.pl
+SHA1 de87e1cb01767e6b19cc9543d100c808d2b88f56 inc/MyMakeMakerExtras.pm
+SHA1 b5860f605d9fbea145af3c0f19168a8593126304 lib/constant/defer.pm
+SHA1 378b932305fb60823467c2af3c771fe3fc295a13 t/0-META-read.t
+SHA1 a343ed4dce96d05de51eed1ec065911584b96fce t/0-Test-DistManifest.t
+SHA1 bba0dc087cbe64d8f100ab77e6cef061c0bebf27 t/0-Test-Pod.t
+SHA1 d506d0e8d07231caede46f2a326d4720576d7c00 t/constant-defer.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iD8DBQFKvrYaLFMCIV9q3ToRAhcyAJ9IRY/WIpQ2HnyhJ8T1YDH4icdF/QCeL4Yx
+OlzygrcYgT4xUwMIO7W1s2o=
+=sRJw
+-----END PGP SIGNATURE-----

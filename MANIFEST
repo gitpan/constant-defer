@@ -6,6 +6,7 @@ debian/control
 debian/copyright
 debian/rules
 debian/watch
+devel/circular.pl
 devel/import.pl
 devel/Memoize/t-memoize-toconst-2.pl
 devel/Memoize/t-memoize-toconst.pl
@@ -14,6 +15,7 @@ devel/Memoize/ToConstant.t
 devel/MyConstantDeferExport.pm
 devel/run.pl
 devel/Singleton/Const.pm
+devel/walk.pl
 examples/instance.pl
 examples/simple.pl
 inc/MyMakeMakerExtras.pm

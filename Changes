@@ -17,5 +17,8 @@ with constant-defer.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 2, October 2009
+    - avoid a circular ref in the initial sub created
+
 Version 1, September 2009
     - the first version

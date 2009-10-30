@@ -14,14 +14,14 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 8624bcdae55baeef00cd11d5dfcfa60f68710a02 COPYING
-SHA1 e4121cd44a021a0a3939aa709fd47114b80b86e7 Changes
-SHA1 583b821ac4dc5e37ac3bacf37234005b1ca0bc06 MANIFEST
-SHA1 13c1f4ba3cd5cd6a7fff24c88cb5453250289bdb MANIFEST.SKIP
-SHA1 b90d080522606262530e14645f89e0f3a511ab62 META.yml
-SHA1 cf12111d74add574237b86f32ec266623af271a8 Makefile.PL
+SHA1 842745cb706f8f2126506f544492f7a80dbe29b3 COPYING
+SHA1 bc6443e62fd0e857848caad5880bebff797f4e37 Changes
+SHA1 6ddfeb807b8e646734836907be8da4dac984db5a MANIFEST
+SHA1 dc045e2ca05204c0b50b2e00c00d3b9f8c24c053 MANIFEST.SKIP
+SHA1 6598d103bc56bb5f2a035cb7b072f715f8c479e7 META.yml
+SHA1 46cb0cde35ca1b5ce22944c103d6ca70ab196b42 Makefile.PL
 SHA1 16a62183a94aa6d126c0be4a22a28f16b17e8c42 README
-SHA1 47d14ce07cf31de908cea326ae5f5df6972e2905 debian/changelog
+SHA1 343fb5403c0f811c2d28689ab6e42d568c3aa37f debian/changelog
 SHA1 ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4 debian/compat
 SHA1 3792de6fd3462e59649d12c1919c45ddea6b8a43 debian/control
 SHA1 1847b5a0380e32058a1130171671fd38b58a1977 debian/copyright
@@ -33,20 +33,22 @@ SHA1 a47696a45185dedbd80dcd43114e08b901c53337 devel/Memoize/t-memoize-toconst-2.
 SHA1 6b881d857b5b9e884dc2bd1b10d2ca587c58c105 devel/Memoize/t-memoize-toconst.pl
 SHA1 447eb23a9e5506effc6b1bd7eb3334f0cac26b59 devel/MyConstantDeferExport.pm
 SHA1 7bf6a08cfca4e7ad72ff852815a9bf88edd8c471 devel/Singleton/Const.pm
+SHA1 f1d98901f4b53d5c42b7aaa64c6d930028e3525b devel/circular.pl
 SHA1 3f2cb6c383bab6798b518493df846144f3f93712 devel/import.pl
 SHA1 d7a32a92db6d4aae3905df59783eae25257f2c77 devel/run.pl
+SHA1 fe4d6e208eee6dccc9aa1c9f7ff0cd18eb08dc50 devel/walk.pl
 SHA1 9d078ad07df94e02910e66741c5d3ef913b76b61 examples/instance.pl
 SHA1 cdd66ded7225fbdb1c65eeb6d23704aafc7c9033 examples/simple.pl
-SHA1 de87e1cb01767e6b19cc9543d100c808d2b88f56 inc/MyMakeMakerExtras.pm
-SHA1 b5860f605d9fbea145af3c0f19168a8593126304 lib/constant/defer.pm
+SHA1 13a4179b77a482287d5087bce4f4ab97097e4bc1 inc/MyMakeMakerExtras.pm
+SHA1 9029ecdcb21e6ea01ba2196d64cc144a68877f60 lib/constant/defer.pm
 SHA1 378b932305fb60823467c2af3c771fe3fc295a13 t/0-META-read.t
 SHA1 a343ed4dce96d05de51eed1ec065911584b96fce t/0-Test-DistManifest.t
 SHA1 bba0dc087cbe64d8f100ab77e6cef061c0bebf27 t/0-Test-Pod.t
-SHA1 d506d0e8d07231caede46f2a326d4720576d7c00 t/constant-defer.t
+SHA1 2395e59a3d1f0af2a586d093cb43d51cc3c506dc t/constant-defer.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iD8DBQFKvrYaLFMCIV9q3ToRAhcyAJ9IRY/WIpQ2HnyhJ8T1YDH4icdF/QCeL4Yx
-OlzygrcYgT4xUwMIO7W1s2o=
-=sRJw
+iD8DBQFK63NvLFMCIV9q3ToRAo7mAJ0cm/Cfg9Jp6gaACCQE17XAtZ2GeACfeSNj
+bEvU4o9ksLDWuKL3hCYA8G8=
+=+Ryp
 -----END PGP SIGNATURE-----

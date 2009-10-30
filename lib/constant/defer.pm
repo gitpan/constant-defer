@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION = 1;
+$VERSION = 2;
 
 sub import {
   my $class = shift;
@@ -59,14 +59,18 @@ sub _create_for_package {
 
 sub _create_fullname {
   my ($class, $fullname, $subr) = @_;
-  my $run;
-  $run = sub {
-    unshift @_, $fullname, $subr, \$run;
+  my $run = sub {
+    unshift @_, $fullname, $subr;
     goto &_run
   };
-  my $func = sub () { goto $run };
+  my $func = sub () {
+    unshift @_, \$run;
+    goto $run;
+  };
   no strict 'refs';
   *$fullname = $func;
+
+  ### $constant::defer::DEBUG_LAST_RUNNER = $run;
 }
 
 sub _run {

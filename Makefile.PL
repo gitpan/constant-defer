@@ -37,8 +37,7 @@ MyMakeMakerExtras::WriteMakefile
    SIGN         => 1,
 
    META_MERGE
-   => { no_index => { directory => [ 'devel' ] },
-        resources
+   => { resources
         => { homepage
              => 'http://user42.tuxfamily.org/constant-defer/index.html',
            },

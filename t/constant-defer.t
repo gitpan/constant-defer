@@ -1,6 +1,6 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
-# Copyright 2008, 2009 Kevin Ryde
+# Copyright 2008, 2009, 2010 Kevin Ryde
 
 # This file is part of constant-defer.
 #
@@ -22,12 +22,14 @@ use warnings;
 use constant::defer;
 use Test::More tests => 50;
 
-SKIP: { eval 'use Test::NoWarnings; 1'
-          or skip 'Test::NoWarnings not available', 1; }
+BEGIN {
+ SKIP: { eval 'use Test::NoWarnings; 1'
+           or skip 'Test::NoWarnings not available', 1; }
+}
 
-my $want_version = 2;
-cmp_ok ($constant::defer::VERSION,'>=',$want_version, 'VERSION variable');
-cmp_ok (constant::defer->VERSION, '>=',$want_version, 'VERSION class method');
+my $want_version = 3;
+is ($constant::defer::VERSION, $want_version, 'VERSION variable');
+is (constant::defer->VERSION,  $want_version, 'VERSION class method');
 { ok (eval { constant::defer->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
@@ -39,7 +41,7 @@ cmp_ok (constant::defer->VERSION, '>=',$want_version, 'VERSION class method');
 #------------------------------------------------------------------------------
 # plain name
 
-my $have_scalar_util;
+my $have_weaken;
 
 {
   my $foo_runs = 0;
@@ -54,12 +56,20 @@ my $have_scalar_util;
   is (&$orig_code(), 123, 'FOO orig second run');
   is ($foo_runs, 1, "FOO orig second doesn't run code");
 
-  $have_scalar_util = eval { require Scalar::Util; 1 };
-  if (! $have_scalar_util) {
-    diag "Scalar::Util not available -- $@";
+  $have_weaken = eval { require Scalar::Util;
+                        my $x = [ 'hello' ];
+                        Scalar::Util::weaken($x);
+                        if (defined $x) {
+                          die "Oops, weakening didn't garbage collect";
+                        }
+                        1
+                      };
+  if (! $have_weaken) {
+    diag "Scalar::Util::weaken() not available -- $@";
   }
+
  SKIP: {
-    $have_scalar_util or skip "Scalar::Util not available", 3;
+    $have_weaken or skip "Scalar::Util::weaken() not available", 3;
     Scalar::Util::weaken ($orig_code);
     is ($orig_code, undef, 'orig FOO code garbage collected');
 
@@ -216,7 +226,7 @@ my $have_scalar_util;
   is_deeply (\@got, ['gc me'], 'WEAKEN_CONST - result');
 
  SKIP: {
-    $have_scalar_util or skip "Scalar::Util not available", 1;
+    $have_weaken or skip "Scalar::Util::weaken() not available", 1;
 
     Scalar::Util::weaken ($subr);
     is ($subr,   undef,   'WEAKEN_CONST - subr now undef');
@@ -241,7 +251,7 @@ my $have_scalar_util;
   is ($runs, 1, 'WEAKEN_OBJRET - run once');
 
  SKIP: {
-    $have_scalar_util or skip "Scalar::Util not available", 2;
+    $have_weaken or skip "Scalar::Util::weaken() not available", 2;
     Scalar::Util::weaken ($subr);
     Scalar::Util::weaken ($objref);
     is ($subr, undef,   'WEAKEN_OBJRET - subr now undef');
@@ -260,7 +270,7 @@ my $have_scalar_util;
   is_deeply (\@got, ['gc me'], 'CAN_GC - result');
 
  SKIP: {
-    $have_scalar_util or skip "Scalar::Util not available", 1;
+    $have_weaken or skip "Scalar::Util::weaken() not available", 1;
 
     Scalar::Util::weaken ($cancode);
     is ($cancode, undef, 'CAN_GC - can() coderef now undef');
@@ -278,7 +288,7 @@ my $have_scalar_util;
   is_deeply (\@got, ['gc me'], 'INITIAL_GC - result');
 
  SKIP: {
-    $have_scalar_util or skip "Scalar::Util not available", 1;
+    $have_weaken or skip "Scalar::Util::weaken() not available", 1;
 
     Scalar::Util::weaken ($coderef);
     is ($coderef, undef, 'INITIAL_GC - saved initial now undef');
@@ -297,7 +307,7 @@ SKIP: {
   }
 
   $runner or skip "DEBUG_LAST_RUNNER not enabled in defer.pm", 1;
-  $have_scalar_util or skip "Scalar::Util not available", 1;
+  $have_weaken or skip "Scalar::Util::weaken() not available", 1;
 
   { no warnings 'redefine';
     *RUNNER_GC = sub () { 'new value' };
@@ -306,7 +316,7 @@ SKIP: {
   is ($runner, undef, 'RUNNER_GC - now undef');
   if ($runner) {
     require Devel::FindRef;
-    print Devel::FindRef::track($runner);
+    diag Devel::FindRef::track($runner);
   }
 }
 

@@ -1,4 +1,4 @@
-# Copyright 2009 Kevin Ryde
+# Copyright 2009, 2010 Kevin Ryde
 
 # This file is part of constant-defer.
 #
@@ -23,15 +23,15 @@
 Source: libconstant-defer-perl
 Section: perl
 Priority: optional
-Build-Depends: cdbs, debhelper (>= 5), libtest-more-perl | perl-modules (>= 5.6.2)
+Build-Depends: cdbs, debhelper (>= 5), libtest-more-perl | perl (>= 5.6.2)
 Maintainer: Kevin Ryde <user42@zip.com.au>
-Standards-Version: 3.8.3
+Standards-Version: 3.9.1
 Homepage: http://user42.tuxfamily.org/constant-defer/index.html
 Bugs: mailto:user42@zip.com.au
 
 Package: libconstant-defer-perl
 Architecture: all
-Depends: perl, ${misc:Depends}
+Depends: perl, ${perl:Depends}, ${misc:Depends}
 Description: Constant subs with deferred value calculation
  constant::defer creates constants like constant.pm, but with the
  value calculated only on the first call.  This can save work for

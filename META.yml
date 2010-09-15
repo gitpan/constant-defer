@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               constant-defer
-version:            2
+version:            3
 abstract:           Constant subs with deferred value calculation.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -31,23 +31,16 @@ optional_features:
     maximum_devel:
         description:  Stuff used variously for development.
         requires:
-            base:          0
-            Data::Dumper:  0
-            File::Spec:    0
-            lib::abs:      0
-            Scalar::Util:  0
-            warnings:      0
+            base:               0
+            Data::Dumper:       0
+            File::Spec:         0
+            lib::abs:           0
+            Pod::Simple::HTML:  0
+            Scalar::Util:       0
+            warnings:           0
+            warnings::unused:   0
     maximum_tests:
         description:  Have "make test" do as much as possible.
         requires:
-            File::Spec:          0
-            FindBin:             0
-            Parse::CPAN::Meta:   0
-            Scalar::Util:        0
-            Test::DistManifest:  0
-            Test::NoWarnings:    0
-            Test::Pod:           1.00
-            YAML:                0
-            YAML::Syck:          0
-            YAML::Tiny:          0
-            YAML::XS:            0
+            Scalar::Util:      0
+            Test::NoWarnings:  0

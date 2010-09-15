@@ -1,6 +1,4 @@
-#!/usr/bin/perl
-
-# Copyright 2009 Kevin Ryde
+# Copyright 2009, 2010 Kevin Ryde
 
 # This file is part of constant-defer.
 #

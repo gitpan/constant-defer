@@ -1,4 +1,4 @@
-# Copyright 2008, 2009 Kevin Ryde
+# Copyright 2008, 2009, 2010 Kevin Ryde
 
 # This file is part of constant-defer.
 #
@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION = 2;
+$VERSION = 3;
 
 sub import {
   my $class = shift;
@@ -61,7 +61,7 @@ sub _create_fullname {
   my ($class, $fullname, $subr) = @_;
   my $run = sub {
     unshift @_, $fullname, $subr;
-    goto &_run
+    goto &_run;
   };
   my $func = sub () {
     unshift @_, \$run;
@@ -79,12 +79,18 @@ sub _run {
   my $run_ref = shift;
   ### print "_run() $fullname $subr\n";
 
-  my @ret = $subr->(@_);
+  my @ret = &$subr(@_);
   if (@ret == 1) {
     # constant.pm has an optimization to make a constant by storing a scalar
     # value directly into the %{Foo::Bar::} hash if there's no typeglob for
-    # the name yet.  But that doesn't apply here, there's always a glob
+    # the name yet.  But that doesn't apply here, there's always a glob from
     # having converted a function.
+    #
+    # The function created only has name __ANON__ in its coderef GV (as
+    # fetched by Sub::Identify for instance).  This is the same as most
+    # function creating modules, including Memoize.pm.  Plain constant.pm
+    # likewise, except when it uses the scalar ref in symbol table
+    # optimization, in that case a later upgrade to a function gets a name.
     #
     my $value = $ret[0];
     $subr = sub () { $value };
@@ -121,9 +127,13 @@ sub _nothing () { }
 1;
 __END__
 
+=for stopwords bareword stringizing inline there'd fakery subclassing Ryde multi-value
+
 =head1 NAME
 
 constant::defer -- constant subs with deferred value calculation
+
+=for test_synopsis my ($some,$thing,$an,$other);
 
 =head1 SYNOPSIS
 
@@ -136,13 +146,13 @@ constant::defer -- constant subs with deferred value calculation
 =head1 DESCRIPTION
 
 C<constant::defer> creates a subroutine which runs given code to calculate
-its value on the first call, and from then on returns just that value, like
-a constant.  The value code is discarded once run, allowing it to be garbage
-collected.
+its value, and on the second and subsequent calls just returns that value,
+like a constant.  The value code is discarded once run, allowing it to be
+garbage collected.
 
-Deferring a calculation is good if it might take a lot of work and/or
-produce a big result, yet is only needed sometimes or only well into a
-program run.  If it's never needed then the code never runs.
+Deferring a calculation is good if it might take a lot of work or produce a
+big result, but is only needed sometimes or only well into a program run.
+If it's never needed then the code never runs.
 
 Here are some typical uses.
 
@@ -150,12 +160,13 @@ Here are some typical uses.
 
 =item *
 
-A big value or slow calculation put off,
+A big value or slow calculation only sometimes used,
 
     use constant::defer SLOWVALUE => sub {
                           long calculation ...;
                           return $result;
                         };
+
     if ($option) {
       print "s=", SLOWVALUE, "\n";
     }
@@ -166,6 +177,7 @@ A shared object instance created when needed then re-used,
 
     use constant::defer FORMATTER
       => sub { return My::Formatter->new };
+
     if ($something) {
       FORMATTER()->format ...
     }
@@ -184,7 +196,7 @@ actually needed,
 
 Once-only setup code can be created with no return value.  The code is
 garbage collected after the first run and becomes a do-nothing.  Remember to
-have an empty return statement so as not to keep the last statement's value
+have an empty return statement so as not to keep the last expression's value
 alive forever.
 
     use constant::defer MY_INIT => sub {
@@ -201,15 +213,14 @@ alive forever.
 
 =head1 IMPORTS
 
-There are no functions as such, everything is accomplished through the
-C<use> import.
+There are no functions as such, everything works through the C<use> import.
 
 =over 4
 
 =item C<< use constant::defer NAME1=>SUB1, NAME2=>SUB2, ...; >>
 
-The parameters are name/subroutine pairs.  For each a sub called C<NAME> is
-created, running the C<SUB> the first time its value is needed.
+The parameters are name/subroutine pairs.  For each one a sub called C<NAME>
+is created, running the given C<SUB> the first time its value is needed.
 
 C<NAME> defaults to the caller's package, or a fully qualified name can be
 given.  Remember that the bareword stringizing of C<=E<gt>> doesn't act on a
@@ -238,25 +249,30 @@ sub.
     }
 
 The value sub is always run in array context, for consistency, irrespective
-how the constant is used.  For zero or one return values this makes no
-difference.  But for two or more any list return in the value sub becomes an
-array return from the constant like
+how the constant is used.  The return from the new constant sub is an array
+style
 
     sub () { return @result }
 
-List versus array return are subtly different in scalar context; a list
-gives the last value like a comma operator, an array gives the number of
-elements.  The array style is easier to implement for C<constant::defer> and
-is the same as the plain C<constant> module does.
+If the value sub was a list-style return like C<NUMS> shown above, then this
+array-style return is slightly different.  In scalar context a list return
+means the last value (like a comma operator), but an array return means the
+number of elements.
+
+A multi-value constant won't normally be used in scalar context, so the
+difference shouldn't arise.  The array style is easier for
+C<constant::defer> to implement and is the same as the plain C<constant>
+module does.
 
 =head1 ARGUMENTS
 
 If the constant sub is called with arguments then they're passed on to the
 value sub.  This can be good for constants used as object or class methods,
-but anything else to plain constants would be unusual.
+but passing anything to plain constants would be unusual.
 
-One cute use for class method style is to make a "singleton" instance of a
-class.  See F<examples/instance.pl> in the source for a complete program.
+One cute use for a class method style is to make a "singleton" instance of
+the class.  See F<examples/instance.pl> in the sources for a complete
+program.
 
     package My::Class;
     use constant::defer INSTANCE => sub { my ($class) = @_;
@@ -266,66 +282,77 @@ class.  See F<examples/instance.pl> in the source for a complete program.
 
 Subs created by C<constant::defer> always have prototype C<()>, ensuring
 they always parse the same way.  The prototype has no effect when called as
-a method like above, but if you want to pass arguments in a plain call then
-use C<&> to bypass the prototype (see L<perlsub>).
+a method like above, but if you want a plain call with arguments then use
+C<&> to bypass the prototype (see L<perlsub>).
 
     &MYCONST ('Some value');
 
 =head1 IMPLEMENTATION
 
-Currently C<constant::defer> creates sub under the requested name and when
-called it replaces itself with a new constant sub the same as C<use
-constant> would make.  This is compact and means that later C<require>d code
-might be able to inline the value.
+Currently C<constant::defer> creates a sub under the requested name and when
+called it replaces that with a new constant sub the same as C<use constant>
+would make.  This is compact and means that later C<require>d code might be
+able to inline the value.
 
 It's fine to keep a reference to the initial sub and in fact that happens
-quite normally if imported into another modules (with the usual
+quite normally if importing into another module (with the usual
 C<Exporter>), or an explicit C<\&foo>, or a C<$package-E<gt>can('foo')>.
 The initial sub changes itself to jump to the new constant, it doesn't
 re-run the value code.
 
 The jump is currently done by a C<goto> of a scalar, so it's a touch slower
 than the new constant sub directly.  A spot of XS would no doubt make the
-difference negligible, and in fact probably to the point where there'd be no
+difference negligible, in fact probably to the point where there'd be no
 need for a new sub, just have the initial transform itself.
 
-=head1 OTHER WAYS
+=head1 OTHER WAYS TO DO IT
 
-There's more than one way to do "deferred" or "lazy" calculations.  In fact
-there's a lot of ways.
+There's many ways to do "deferred" or "lazy" calculations.
 
 =over 4
 
 =item *
 
-C<Memoize> makes a function repeat its return.  It caches results against
-different arguments, so it preserves the original code whereas
-C<constant::defer> discards after the first run.
+C<Memoize> makes a function repeat its return.  Results are cached against
+the arguments, so it preserves the original code whereas C<constant::defer>
+discards after the first run.
 
 =item *
 
 C<Class::Singleton> and friends make a create-once
 C<My::Class-E<gt>instance> method.  C<constant::defer> can get close with
-the fakery under L</ARGUMENTS> above, though without a C<has_instance> to
-query.
+the fakery shown under L</ARGUMENTS> above, though without a C<has_instance>
+to query.
 
 =item *
 
-A scalar can be rigged up to run code on its first access.  The advantage of
-a variable is that it interpolates in strings, but it won't inline in later
-loaded code, sloppy XS code might bypass the magic, and public package
-variables aren't terribly friendly when subclassing.
-
-Modules for this include: C<Data::Lazy> using a C<tie>.  C<Scalar::Defer>
-and C<Scalar::Lazy> using C<overload> on an object.  And C<Data::Thunk>
-optimizing out the object from C<Scalar::Defer> after the first run.
+C<Sub::Become> offers some syntactic sugar for redefining the running
+subroutine, including to a constant.  C<Sub::SingletonBuilder> can create an
+instance function, but is geared towards objects and so won't allow 0 or
+C<undef> as the return value.
 
 =item *
 
-C<Object::Lazy> and L<Object::Realize::Later> rig up an object to only load
-its class and create itself when a method is called.  The advantage is you
-can access the value, pass it around, etc, deferring to an even later point
+A scalar can be rigged up to run code on its first access.  C<Data::Lazy>
+uses a C<tie>.  C<Scalar::Defer> and C<Scalar::Lazy> use C<overload> on an
+object.  C<Data::Thunk> optimizes out the object from C<Scalar::Defer> after
+the first run.
+
+The advantage of a variable is that it interpolates in strings, but it won't
+inline in later loaded code, and sloppy XS code might bypass the magic, and
+package variables aren't terribly friendly when subclassing.
+
+=item *
+
+C<Object::Lazy> and C<Object::Realize::Later> rig up an object to only load
+its class and fill itself in when a method is called.  The advantage is you
+can make a value, pass it around, etc, deferring work to an even later point
 than a sub or scalar.
+
+=item *
+
+C<once.pm> sets up a run-once code block, but with no particular return
+value and not discarding the code after run.
 
 =back
 
@@ -335,7 +362,8 @@ L<constant>, L<perlsub>
 
 L<Memoize>, L<Attribute::Memoize>, L<Memoize::Attrs>, L<Class::Singleton>,
 L<Data::Lazy>, L<Scalar::Defer>, L<Scalar::Lazy>, L<Data::Thunk>,
-L<Object::Lazy> L<Object::Realize::Later>
+L<Object::Lazy> L<Object::Realize::Later>, L<Sub::Become>,
+L<Sub::SingletonBuilder>, L<once>
 
 =head1 HOME PAGE
 
@@ -343,7 +371,7 @@ http://user42.tuxfamily.org/constant-defer/index.html
 
 =head1 COPYRIGHT
 
-Copyright 2009 Kevin Ryde
+Copyright 2009, 2010 Kevin Ryde
 
 constant-defer is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

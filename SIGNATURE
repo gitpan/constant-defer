@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.55.
+signed via the Module::Signature module, version 0.63.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -15,40 +15,47 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 842745cb706f8f2126506f544492f7a80dbe29b3 COPYING
-SHA1 bc6443e62fd0e857848caad5880bebff797f4e37 Changes
-SHA1 6ddfeb807b8e646734836907be8da4dac984db5a MANIFEST
-SHA1 dc045e2ca05204c0b50b2e00c00d3b9f8c24c053 MANIFEST.SKIP
-SHA1 6598d103bc56bb5f2a035cb7b072f715f8c479e7 META.yml
+SHA1 9f631499a1224d85a02cb491892aa83663a636d7 Changes
+SHA1 9c56b563eaa164d53289e52d4bdb3a13eae947a3 MANIFEST
+SHA1 e6e7c2904ea5d300c0ddf70fc5a80f5005229aa9 MANIFEST.SKIP
+SHA1 24030f74a6ba4027a170ec24c19a402e7cab185d META.yml
 SHA1 46cb0cde35ca1b5ce22944c103d6ca70ab196b42 Makefile.PL
 SHA1 16a62183a94aa6d126c0be4a22a28f16b17e8c42 README
-SHA1 343fb5403c0f811c2d28689ab6e42d568c3aa37f debian/changelog
+SHA1 53b70684aaa83afb18dd3719a2d2e37a6d639027 debian/changelog
 SHA1 ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4 debian/compat
-SHA1 3792de6fd3462e59649d12c1919c45ddea6b8a43 debian/control
-SHA1 1847b5a0380e32058a1130171671fd38b58a1977 debian/copyright
+SHA1 f273b16dce6d913f47d8fcfc23ab2126331ecc30 debian/control
+SHA1 3c43553580710b6cdc5d9eb565e8cdc8e36a940a debian/copyright
 SHA1 0c428f2f76357f42a222b74aa4d01e3dcf82c080 debian/rules
+SHA1 61652cd1568dcf2614df833eba241755eee34e89 debian/source/format
 SHA1 7dbe6d7d60aa7d008194241d9ae7d9190c9cf2a4 debian/watch
 SHA1 51d58edc4faf28e6dadbd6f19796f5f52ef6fbe7 devel/Memoize/ToConstant.pm
 SHA1 6ba73e607fd311d6fb77332ee61fcb317e7ed92f devel/Memoize/ToConstant.t
 SHA1 a47696a45185dedbd80dcd43114e08b901c53337 devel/Memoize/t-memoize-toconst-2.pl
 SHA1 6b881d857b5b9e884dc2bd1b10d2ca587c58c105 devel/Memoize/t-memoize-toconst.pl
-SHA1 447eb23a9e5506effc6b1bd7eb3334f0cac26b59 devel/MyConstantDeferExport.pm
+SHA1 28f9fbc7df6cd5bbecd14377a0046a8687e28d48 devel/MyConstantDeferExport.pm
 SHA1 7bf6a08cfca4e7ad72ff852815a9bf88edd8c471 devel/Singleton/Const.pm
-SHA1 f1d98901f4b53d5c42b7aaa64c6d930028e3525b devel/circular.pl
-SHA1 3f2cb6c383bab6798b518493df846144f3f93712 devel/import.pl
-SHA1 d7a32a92db6d4aae3905df59783eae25257f2c77 devel/run.pl
-SHA1 fe4d6e208eee6dccc9aa1c9f7ff0cd18eb08dc50 devel/walk.pl
-SHA1 9d078ad07df94e02910e66741c5d3ef913b76b61 examples/instance.pl
-SHA1 cdd66ded7225fbdb1c65eeb6d23704aafc7c9033 examples/simple.pl
-SHA1 13a4179b77a482287d5087bce4f4ab97097e4bc1 inc/MyMakeMakerExtras.pm
-SHA1 9029ecdcb21e6ea01ba2196d64cc144a68877f60 lib/constant/defer.pm
-SHA1 378b932305fb60823467c2af3c771fe3fc295a13 t/0-META-read.t
-SHA1 a343ed4dce96d05de51eed1ec065911584b96fce t/0-Test-DistManifest.t
-SHA1 bba0dc087cbe64d8f100ab77e6cef061c0bebf27 t/0-Test-Pod.t
-SHA1 2395e59a3d1f0af2a586d093cb43d51cc3c506dc t/constant-defer.t
+SHA1 d4982d0f3c1fdfe5c13599432a01c9997c370ff0 devel/circular.pl
+SHA1 3e2ebd33b8fa26a030a51327ebe5eefb483652dc devel/import.pl
+SHA1 30867f46349b0a9de3362880fc1890e42a9386d1 devel/junk/Attribute-MemoizeToConstant.pm
+SHA1 9febabcfa584162848315b2f81d4fae18a1096f9 devel/name.pl
+SHA1 7da963e42e7e0d85c5d291ffb84bd150112d15f6 devel/run.pl
+SHA1 cc54d877973af513bc1648df4afcb0da86effac7 devel/walk.pl
+SHA1 b138ef2de0b821effbbf1358ae70f56152360f11 examples/instance.pl
+SHA1 7f8150d0b1db9aed5e079b18ff4d0231b04a1169 examples/simple.pl
+SHA1 78799545010992cffca900fc4e2e96667e069b54 inc/MyMakeMakerExtras.pm
+SHA1 692a1ddc2ca6b98cac7b48ea40bc1ac1509e8ed9 inc/my_pod2html
+SHA1 367717092ceb6f005bf5e9df66cd9a643d4bd8e2 lib/constant/defer.pm
+SHA1 cc9d34bca6c40211dd6aa8fee844bb1a7f908461 t/MyTestHelpers.pm
+SHA1 f15529ef6c2d8ea1388f599adb28cce6f340320e t/constant-defer.t
+SHA1 9127f78a0dfa04976acbb979dd7862ef59a74c58 xt/0-META-read.t
+SHA1 37abd43b41068804ea4bb099fdd89af21be82926 xt/0-Test-DistManifest.t
+SHA1 8f93fb4c8f0424a4442cc93c9a2e86342ef55281 xt/0-Test-Pod.t
+SHA1 1de8f07883f6bf1a2ef79f2cb8adf1deb3f61cee xt/0-Test-Synopsis.t
+SHA1 fb517c2fae5ddac559318bf6a224949115ea3129 xt/0-Test-YAML-Meta.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iD8DBQFK63NvLFMCIV9q3ToRAo7mAJ0cm/Cfg9Jp6gaACCQE17XAtZ2GeACfeSNj
-bEvU4o9ksLDWuKL3hCYA8G8=
-=+Ryp
+iD8DBQFMkS6JLFMCIV9q3ToRAnQDAJ9vMVTrS/yUasXu0yaqQBAcMc9UDwCeIhBr
+/q/ebYPe3oQA3XWQCKZp05w=
+=J1V4
 -----END PGP SIGNATURE-----

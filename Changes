@@ -1,4 +1,4 @@
-Copyright 2009 Kevin Ryde
+Copyright 2009, 2010 Kevin Ryde
 
 This file is part of constant-defer.
 
@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License along
 with constant-defer.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+Version 3, September 2010
+    - test manifest only as an author test
 
 Version 2, October 2009
     - avoid a circular ref in the initial sub created

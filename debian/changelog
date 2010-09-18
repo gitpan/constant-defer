@@ -1,5 +1,5 @@
-libconstant-defer-perl (3-1) unstable; urgency=low
+libconstant-defer-perl (4-1) unstable; urgency=low
 
   * Packaged version.
 
- -- Kevin Ryde <user42@zip.com.au>  Thu, 16 Sep 2010 06:36:38 +1000
+ -- Kevin Ryde <user42@zip.com.au>  Sat, 18 Sep 2010 09:54:32 +1000

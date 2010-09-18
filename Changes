@@ -17,6 +17,9 @@ with constant-defer.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 4, September 2010
+    - docs clarify not inlined, as suggested by Adam Kennedy
+
 Version 3, September 2010
     - test manifest only as an author test
 

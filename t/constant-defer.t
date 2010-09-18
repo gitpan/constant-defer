@@ -27,7 +27,7 @@ BEGIN {
            or skip 'Test::NoWarnings not available', 1; }
 }
 
-my $want_version = 3;
+my $want_version = 4;
 is ($constant::defer::VERSION, $want_version, 'VERSION variable');
 is (constant::defer->VERSION,  $want_version, 'VERSION class method');
 { ok (eval { constant::defer->VERSION($want_version); 1 },

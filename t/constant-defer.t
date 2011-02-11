@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2008, 2009, 2010 Kevin Ryde
+# Copyright 2008, 2009, 2010, 2011 Kevin Ryde
 
 # This file is part of constant-defer.
 #
@@ -18,30 +18,52 @@
 # with constant-defer.  If not, see <http://www.gnu.org/licenses/>.
 
 use strict;
-use warnings;
 use constant::defer;
-use Test::More tests => 50;
-
+use Test;
 BEGIN {
- SKIP: { eval 'use Test::NoWarnings; 1'
-           or skip 'Test::NoWarnings not available', 1; }
+  plan tests => 49;
 }
 
-my $want_version = 4;
-is ($constant::defer::VERSION, $want_version, 'VERSION variable');
-is (constant::defer->VERSION,  $want_version, 'VERSION class method');
-{ ok (eval { constant::defer->VERSION($want_version); 1 },
+use lib 't';
+use MyTestHelpers;
+MyTestHelpers::nowarnings();
+
+sub streq_array {
+  my ($a1, $a2) = @_;
+  while (@$a1 && @$a2) {
+    unless ((! defined $a1->[0] && ! defined $a2->[0])
+            || (defined $a1->[0]
+                && defined $a2->[0]
+                && $a1->[0] eq $a2->[0])) {
+      return 0;
+    }
+    shift @$a1;
+    shift @$a2;
+  }
+  return (@$a1 == @$a2);
+}
+
+#------------------------------------------------------------------------------
+# VERSION
+
+{
+  my $want_version = 5;
+  ok ($constant::defer::VERSION, $want_version, 'VERSION variable');
+  ok (constant::defer->VERSION,  $want_version, 'VERSION class method');
+  ok (eval { constant::defer->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { constant::defer->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 }
-
 
 #------------------------------------------------------------------------------
 # plain name
 
 my $have_weaken;
+my $skip_weaken;
 
 {
   my $foo_runs = 0;
@@ -50,11 +72,11 @@ my $have_weaken;
   my $orig_code;
   $orig_code = \&FOO;
 
-  is (FOO, 123, 'FOO first run');
-  is ($foo_runs, 1, 'FOO first runs code');
+  ok (FOO, 123, 'FOO first run');
+  ok ($foo_runs, 1, 'FOO first runs code');
 
-  is (&$orig_code(), 123, 'FOO orig second run');
-  is ($foo_runs, 1, "FOO orig second doesn't run code");
+  ok (&$orig_code(), 123, 'FOO orig second run');
+  ok ($foo_runs, 1, "FOO orig second doesn't run code");
 
   $have_weaken = eval { require Scalar::Util;
                         my $x = [ 'hello' ];
@@ -65,17 +87,22 @@ my $have_weaken;
                         1
                       };
   if (! $have_weaken) {
-    diag "Scalar::Util::weaken() not available -- $@";
+    MyTestHelpers::diag ("Scalar::Util::weaken() not available -- ",$@);
+    $skip_weaken = 'due to Scalar::Util::weaken() not available';
   }
 
- SKIP: {
-    $have_weaken or skip "Scalar::Util::weaken() not available", 3;
-    Scalar::Util::weaken ($orig_code);
-    is ($orig_code, undef, 'orig FOO code garbage collected');
+  {
+    if ($have_weaken) {
+      Scalar::Util::weaken ($orig_code);
+    }
+    skip ($skip_weaken,
+          ! defined $orig_code,
+          1,
+          'orig FOO code garbage collected');
 
     $foo_runs = 0;
-    is (FOO, 123, 'FOO second run');
-    is ($foo_runs, 0, "FOO second doesn't run code");
+    ok (FOO, 123, 'FOO second run');
+    ok ($foo_runs, 0, "FOO second doesn't run code");
   }
 }
 
@@ -87,15 +114,15 @@ my $have_weaken;
   use constant::defer 'Some::Non::Package::Place::func' => sub {
     $runs = 1; return 'xyz' };
 
-  is (Some::Non::Package::Place::func(), 'xyz',
+  ok (Some::Non::Package::Place::func(), 'xyz',
       'explicit package first run');
-  is ($runs, 1,
+  ok ($runs, 1,
       'explicit package first run runs code');
 
   $runs = 0;
-  is (Some::Non::Package::Place::func(), 'xyz',
+  ok (Some::Non::Package::Place::func(), 'xyz',
       'explicit package second run');
-  is ($runs, 0,
+  ok ($runs, 0,
       'explicit package second run doesn\'t run code');
 }
 
@@ -107,15 +134,19 @@ my $have_weaken;
   use constant::defer THREE => sub { $runs = 1;
                                      return ('a','b','c') };
 
-  is_deeply ([ THREE() ], [ 'a', 'b', 'c' ],
-             'THREE return values first run');
-  is ($runs, 1,
+  ok (streq_array ([ THREE() ],
+                   [ 'a', 'b', 'c' ]),
+      1,
+      'THREE return values first run');
+  ok ($runs, 1,
       'THREE return values first run runs code');
 
   $runs = 0;
-  is_deeply ([ THREE() ], [ 'a', 'b', 'c' ],
-             'THREE return values second run');
-  is ($runs, 0,
+  ok (streq_array([ THREE() ],
+                  [ 'a', 'b', 'c' ]),
+      1,
+      'THREE return values second run');
+  ok ($runs, 0,
       'THREE return values second run doesn\'t run code');
 }
 
@@ -125,16 +156,16 @@ my $have_weaken;
                                             return ('a','b','c') };
 
   my $got = THREE_SCALAR();
-  is ($got, 3,
+  ok ($got, 3,
       'three values in scalar context return values first run');
-  is ($runs, 1,
+  ok ($runs, 1,
       'three values in scalar context return values first run runs code');
 
   $runs = 0;
   $got = THREE_SCALAR();
-  is ($got, 3,
+  ok ($got, 3,
       'three values in scalar context return values second run');
-  is ($runs, 0,
+  ok ($runs, 0,
       'three values in scalar context return values second run doesn\'t run code');
 }
 
@@ -142,28 +173,25 @@ my $have_weaken;
 # multiple names
 
 {
-  my $foo_runs = 0;
   use constant::defer
     PAIR_ONE => sub { 123 },
     PAIR_TWO => sub { 456 };
-  is (PAIR_ONE, 123, 'PAIR_ONE');
-  is (PAIR_TWO, 456, 'PAIR_TWO');
+  ok (PAIR_ONE, 123, 'PAIR_ONE');
+  ok (PAIR_TWO, 456, 'PAIR_TWO');
 }
 {
-  my $foo_runs = 0;
   use constant::defer { HASH_ONE => sub { 123 },
                         HASH_TWO => sub { 456 } };
-  is (HASH_ONE, 123, 'HASH_ONE');
-  is (HASH_TWO, 456, 'HASH_TWO');
+  ok (HASH_ONE, 123, 'HASH_ONE');
+  ok (HASH_TWO, 456, 'HASH_TWO');
 }
 {
-  my $foo_runs = 0;
   use constant::defer SHASH_ONE => sub { 123 },
                       { SHASH_TWO => sub { 456 },
                         SHASH_THREE => sub { 789 } };
-  is (SHASH_ONE, 123, 'SHASH_ONE');
-  is (SHASH_TWO, 456, 'SHASH_TWO');
-  is (SHASH_THREE, 789, 'SHASH_THREE');
+  ok (SHASH_ONE, 123, 'SHASH_ONE');
+  ok (SHASH_TWO, 456, 'SHASH_TWO');
+  ok (SHASH_THREE, 789, 'SHASH_THREE');
 }
 
 #------------------------------------------------------------------------------
@@ -178,12 +206,12 @@ my $have_weaken;
   my $func = MyTestCan->can('CANNED');
 
   my $got = &$func();
-  is ($got, 'foo', 'through can() - result');
-  is ($runs, 1,    'through can() - run once');
+  ok ($got, 'foo', 'through can() - result');
+  ok ($runs, 1,    'through can() - run once');
 
   $got = &$func();
-  is ($got, 'foo', 'through can() - 2nd result');
-  is ($runs, 1,    'through can() - 2nd still run once');
+  ok ($got, 'foo', 'through can() - 2nd result');
+  ok ($runs, 1,    'through can() - 2nd still run once');
 }
 
 #------------------------------------------------------------------------------
@@ -203,12 +231,12 @@ my $have_weaken;
   MyTestImport->import;
 
   my $got = TEST_IMPORT_FOO();
-  is ($got, 'foo', 'through import - result');
-  is ($runs, 1,    'through import - run once');
+  ok ($got, 'foo', 'through import - result');
+  ok ($runs, 1,    'through import - run once');
 
   $got = TEST_IMPORT_FOO();
-  is ($got, 'foo', 'through import - 2nd result');
-  is ($runs, 1,    'through import - 2nd still run once');
+  ok ($got, 'foo', 'through import - 2nd result');
+  ok ($runs, 1,    'through import - 2nd still run once');
 }
 
 #------------------------------------------------------------------------------
@@ -216,21 +244,29 @@ my $have_weaken;
 
 {
   my $subr;
-  BEGIN { $subr = sub { return 'gc me' } }
+  BEGIN {
+    # crib: anon sub must refer to a lexical or isn't gc'ed, at least in 5.6.0
+    my $lexical_var = 'gc me';
+    $subr = sub { return $lexical_var };
+  }
   use constant::defer WEAKEN_CONST => $subr;
 
   # including when the can() first func is retained
-  my $cancode = main->can('WEAKEN_CONST');
+  # my $cancode = main->can('WEAKEN_CONST');
 
   my @got = WEAKEN_CONST();
-  is_deeply (\@got, ['gc me'], 'WEAKEN_CONST - result');
+  ok (streq_array (\@got,
+                   ['gc me']),
+      1,
+      'WEAKEN_CONST - result');
 
- SKIP: {
-    $have_weaken or skip "Scalar::Util::weaken() not available", 1;
-
+  if ($have_weaken) {
     Scalar::Util::weaken ($subr);
-    is ($subr,   undef,   'WEAKEN_CONST - subr now undef');
   }
+  skip ($skip_weaken,
+        ! defined $subr,
+        1,
+        'WEAKEN_CONST - subr now undef');
 }
 
 {
@@ -244,19 +280,27 @@ my $have_weaken;
   use constant::defer WEAKEN_OBJRET => $subr;
 
   # including when the can() first func is retained
-  my $cancode = main->can('WEAKEN_OBJRET');
+  # my $cancode = main->can('WEAKEN_OBJRET');
 
   my @got = WEAKEN_OBJRET();
-  is_deeply (\@got, ['foo','bar'], 'WEAKEN_OBJRET - result');
-  is ($runs, 1, 'WEAKEN_OBJRET - run once');
+  ok (streq_array (\@got,
+                   ['foo','bar']),
+      1,
+      'WEAKEN_OBJRET - result');
+  ok ($runs, 1, 'WEAKEN_OBJRET - run once');
 
- SKIP: {
-    $have_weaken or skip "Scalar::Util::weaken() not available", 2;
+  if ($have_weaken) {
     Scalar::Util::weaken ($subr);
     Scalar::Util::weaken ($objref);
-    is ($subr, undef,   'WEAKEN_OBJRET - subr now undef');
-    is ($objref, undef, 'WEAKEN_OBJRET - objref now undef');
   }
+  skip ($skip_weaken,
+        ! defined $subr,
+        1,
+        'WEAKEN_OBJRET - subr now undef');
+  skip ($skip_weaken,
+        ! defined $objref,
+        1,
+        'WEAKEN_OBJRET - objref now undef');
 }
 
 #------------------------------------------------------------------------------
@@ -267,14 +311,18 @@ my $have_weaken;
   my $cancode = main->can('CAN_GC');
 
   my @got = CAN_GC();
-  is_deeply (\@got, ['gc me'], 'CAN_GC - result');
+  ok (streq_array (\@got,
+                   ['gc me']),
+      1,
+      'CAN_GC - result');
 
- SKIP: {
-    $have_weaken or skip "Scalar::Util::weaken() not available", 1;
-
+  if ($have_weaken) {
     Scalar::Util::weaken ($cancode);
-    is ($cancode, undef, 'CAN_GC - can() coderef now undef');
   }
+  skip ($skip_weaken,
+        ! defined $cancode,
+        1,
+        'CAN_GC - can() coderef now undef');
 }
 
 #------------------------------------------------------------------------------
@@ -285,38 +333,49 @@ my $have_weaken;
   my $coderef = \&INITIAL_GC;
 
   my @got = INITIAL_GC();
-  is_deeply (\@got, ['gc me'], 'INITIAL_GC - result');
+  ok (streq_array (\@got,
+                   ['gc me']),
+      1,
+      'INITIAL_GC - result');
 
- SKIP: {
-    $have_weaken or skip "Scalar::Util::weaken() not available", 1;
-
+  if ($have_weaken) {
     Scalar::Util::weaken ($coderef);
-    is ($coderef, undef, 'INITIAL_GC - saved initial now undef');
   }
+  skip ($skip_weaken,
+        ! defined $coderef,
+        1,
+        'INITIAL_GC - saved initial now undef');
 }
 
 #------------------------------------------------------------------------------
 # gc of runner helper after redefine
 
-SKIP: {
+{
   use constant::defer RUNNER_GC => sub { return 'gc me' };
   my $runner;
   BEGIN {
     $runner = $constant::defer::DEBUG_LAST_RUNNER;
     undef $constant::defer::DEBUG_LAST_RUNNER;
   }
-
-  $runner or skip "DEBUG_LAST_RUNNER not enabled in defer.pm", 1;
-  $have_weaken or skip "Scalar::Util::weaken() not available", 1;
-
-  { no warnings 'redefine';
-    *RUNNER_GC = sub () { 'new value' };
+  if (! $runner) {
+    MyTestHelpers::diag ("DEBUG_LAST_RUNNER not enabled in defer.pm");
   }
-  Scalar::Util::weaken ($runner);
-  is ($runner, undef, 'RUNNER_GC - now undef');
+
+  do {
+    local $^W = 0; # no warnings 'redefine';
+    eval '*RUNNER_GC = sub () { "new value" }; 1';
+  } or die "Oops, eval error: $@";
+
+  if ($have_weaken) {
+    Scalar::Util::weaken ($runner);
+  }
+  skip ($skip_weaken,
+        ! defined $runner,
+        1,
+        'RUNNER_GC - now undef');
   if ($runner) {
     require Devel::FindRef;
-    diag Devel::FindRef::track($runner);
+    MyTestHelpers::diag (Devel::FindRef::track($runner));
   }
 }
 

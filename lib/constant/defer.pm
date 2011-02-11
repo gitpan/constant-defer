@@ -1,4 +1,4 @@
-# Copyright 2008, 2009, 2010 Kevin Ryde
+# Copyright 2008, 2009, 2010, 2011 Kevin Ryde
 
 # This file is part of constant-defer.
 #
@@ -17,10 +17,9 @@
 
 package constant::defer;
 use strict;
-use warnings;
 use vars qw($VERSION);
 
-$VERSION = 4;
+$VERSION = 5;
 
 sub import {
   my $class = shift;
@@ -103,9 +102,9 @@ sub _run {
   }
 
   $$run_ref = $subr;
-  { no warnings 'redefine';
-    no strict 'refs';
-    *$fullname = $subr;
+  { no strict 'refs';
+    local $^W = 0; # no warnings 'redefine';
+    eval { *$fullname = $subr } or die $@;
   }
   goto $subr;
 }
@@ -122,12 +121,12 @@ sub _validate_name {
   }
 }
 
-sub _nothing () { }
+sub _nothing () { } ## no critic (ProhibitSubroutinePrototypes)
 
 1;
 __END__
 
-=for stopwords bareword stringizing inline there'd fakery subclassing Ryde multi-value
+=for stopwords bareword stringizing inline there'd fakery subclassing Ryde multi-value inlined coderef subrs subr
 
 =head1 NAME
 
@@ -183,8 +182,8 @@ A big value or slow calculation only sometimes needed,
 
 A shared object instance created when needed then re-used,
 
-    use constant::defer FORMATTER
-      => sub { return My::Formatter->new };
+    use constant::defer FORMATTER =>
+          sub { return My::Formatter->new };
 
     if ($something) {
       FORMATTER()->format ...
@@ -320,6 +319,11 @@ the difference negligible, in fact perhaps to the point where there'd be no
 need for a new sub, just have the initial transform itself.  If the new form
 looked enough like a plain constant it might inline in later loaded code.
 
+For reference, C<Package::Constants> (as of version 0.02) considers
+C<constant::defer> subrs as constants, both before and after the first call
+that runs the value code.  C<Package::Constants> just looks for prototyped
+S<C<sub foo () { }>> functions, so any such subr rates as a constant.
+
 =head1 OTHER WAYS TO DO IT
 
 There's many ways to do "deferred" or "lazy" calculations.
@@ -354,7 +358,8 @@ geared towards objects and so won't allow 0 or C<undef> as the return value.
 A scalar can be rigged up to run code on its first access.  C<Data::Lazy>
 uses a C<tie>.  C<Scalar::Defer> and C<Scalar::Lazy> use C<overload> on an
 object.  C<Data::Thunk> optimizes out the object from C<Scalar::Defer> after
-the first run.
+the first run.  C<Variable::Lazy> uses XS magic removed after the first
+fetch and some parsing for syntactic sugar.
 
 The advantage of a variable is that it interpolates in strings, but it won't
 inline in later loaded code; sloppy XS code might bypass the magic; and
@@ -362,26 +367,55 @@ package variables aren't very friendly when subclassing.
 
 =item *
 
-C<Object::Lazy> and C<Object::Realize::Later> rig up an object to only load
-the actual class code and fill itself in when a method is called.  The
-advantage is you can make a value, pass it around, etc, deferring loading
-etc to an even later point than a sub or scalar.
+C<Object::Lazy> and C<Object::Trampoline> rig up an object wrapper to load
+and create an actual object only when a method is called, dispatching to it
+and replacing the callers C<$_[0]>.  The advantage is you can pass the
+wrapper object around, etc, deferring creation to an even later point than a
+sub or scalar can.
+
+=item *
+
+C<Object::Realize::Later>, C<Class::LazyObject> and C<Class::LazyFactory>
+help make a defer class which transforms lazy stub objects to real ones when
+a method call is made.  A separate defer class is required for each real
+class.
 
 =item *
 
 C<once.pm> sets up a run-once code block, but with no particular return
 value and not discarding the code after run.
 
+=item *
+
+C<Class::LazyLoad> and C<deferred> load code on a class method call such as
+object creation.  They're more about module loading than a defer of a
+particular value.
+
+=item *
+
+C<Tie::LazyList> and C<Tie::Array::Lazy> makes an array calculate values
+on-demand from a generator function.  C<Hash::Lazy> does a similar thing for
+hashes.  C<Tie::LazyFunction> hides a function behind a scalar; its laziness
+is in the argument evaluation, the function is called every time.
+
 =back
 
 =head1 SEE ALSO
 
-L<constant>, L<perlsub>
+L<constant>, L<perlsub>, L<constant::lexical>
 
-L<Memoize>, L<Attribute::Memoize>, L<Memoize::Attrs>, L<Class::Singleton>,
+L<Memoize>, L<Attribute::Memoize>, L<Memoize::Attrs>,
+L<Class::Singleton>,
 L<Data::Lazy>, L<Scalar::Defer>, L<Scalar::Lazy>, L<Data::Thunk>,
-L<Object::Lazy> L<Object::Realize::Later>, L<Sub::Become>,
-L<Sub::SingletonBuilder>, L<once>
+L<Variable::Lazy>,
+L<Sub::Become>,
+L<Sub::SingletonBuilder>,
+L<Object::Lazy>,
+L<Object::Trampoline>,
+L<Object::Realize::Later>,
+L<once>,
+L<Class::LazyLoad>,
+L<deferred>
 
 =head1 HOME PAGE
 
@@ -389,7 +423,7 @@ http://user42.tuxfamily.org/constant-defer/index.html
 
 =head1 COPYRIGHT
 
-Copyright 2009, 2010 Kevin Ryde
+Copyright 2009, 2010, 2011 Kevin Ryde
 
 constant-defer is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -1,4 +1,4 @@
-Copyright 2009, 2010 Kevin Ryde
+Copyright 2009, 2010, 2011 Kevin Ryde
 
 This file is part of constant-defer.
 
@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License along
 with constant-defer.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+Version 5, February 2011
+    - fixes for perl 5.6 and earlier
 
 Version 4, September 2010
     - docs clarify not inlined, as suggested by Adam Kennedy

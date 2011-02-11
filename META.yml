@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               constant-defer
-version:            4
+version:            5
 abstract:           Constant subs with deferred value calculation.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -11,9 +11,9 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    Test::More:  0
-    vars:        0
-    warnings:    0
+    perl:  5
+    Test:  0
+    vars:  0
 resources:
     homepage:  http://user42.tuxfamily.org/constant-defer/index.html
     license:   http://www.gnu.org/licenses/gpl.html

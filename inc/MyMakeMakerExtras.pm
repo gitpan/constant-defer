@@ -1,6 +1,6 @@
 # MyMakeMakerExtra.pm -- my shared MakeMaker extras
 
-# Copyright 2009, 2010 Kevin Ryde
+# Copyright 2009, 2010, 2011 Kevin Ryde
 
 # MyMakeMakerExtras.pm is shared by several distributions.
 #
@@ -19,7 +19,6 @@
 
 package MyMakeMakerExtras;
 use strict;
-use warnings;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -31,7 +30,8 @@ sub WriteMakefile {
 
   if (exists $opts{'META_MERGE'}) {
     # cf. ExtUtils::MM_Any::metafile_data() default ['t','inc']
-    foreach my $dir ('devel', 'examples', 'junk', 'maybe') {
+    foreach ('devel', 'examples', 'junk', 'maybe') {
+      my $dir = $_;
       if (-d $dir) {
         push @{$opts{'META_MERGE'}->{'no_index'}->{'directory'}}, $dir;
       }
@@ -50,14 +50,17 @@ sub WriteMakefile {
     *MY::postamble = \&MyMakeMakerExtras::postamble;
   }
 
-  foreach my $opt ('MyMakeMakerExtras_Pod_Coverage',
+  foreach ('MyMakeMakerExtras_Pod_Coverage',
                    'MyMakeMakerExtras_LINT_FILES',
-                   'MY_NO_HTML') {
-    $my_options{$opt} = delete $opts{$opt};
+                   'MY_NO_HTML',
+                   'MY_EXTRA_FILE_PART_OF') {
+    $my_options{$_} = delete $opts{$_};
   }
 
+  ### chain to WriteMakefile()
   ### %opts
   ExtUtils::MakeMaker::WriteMakefile (%opts);
+  ### done
 }
 
 sub strip_comments {
@@ -178,7 +181,8 @@ sub postamble {
 MY_POD2HTML = $(PERL) inc/my_pod2html
 
 HERE
-    if (my $munghtml_extra = $makemaker->{'MY_MUNGHTML_EXTRA'}) {
+    my $munghtml_extra = $makemaker->{'MY_MUNGHTML_EXTRA'};
+    if ($munghtml_extra) {
       $post =~ s/apt-file!'/apt-file!'\\
 $munghtml_extra/;
     }
@@ -215,11 +219,11 @@ HERE
       return $parthtml;
     };
 
-    foreach my $filename (@exefiles) {
-      push @exefiles_html, &$html_rule ($filename);
+    foreach (@exefiles) {
+      push @exefiles_html, &$html_rule ($_);
     }
-    foreach my $filename (@pmfiles) {
-      push @pmfiles_html, &$html_rule ($filename);
+    foreach (@pmfiles) {
+      push @pmfiles_html, &$html_rule ($_);
     }
 
     $post .= "MY_HTML_FILES = " . join(' ', keys %html_files) . "\n";
@@ -246,7 +250,8 @@ HERE
     if (-d 't') { $lint_files .= ' t/*.t'; }
     if (-d 'xt') { $lint_files .= ' xt/*.t'; }
 
-    foreach my $dir ('examples', 'devel') {
+    foreach ('examples', 'devel') {
+      my $dir = $_;
       my $pattern = "$dir/*.pl";
       if (glob ($pattern)) {
         $lint_files .= " $pattern";
@@ -255,7 +260,8 @@ HERE
   }
 
   my $podcoverage = '';
-  foreach my $class (@{$my_options{'MyMakeMakerExtras_Pod_Coverage'}}) {
+  foreach (@{$my_options{'MyMakeMakerExtras_Pod_Coverage'}}) {
+      my $class = $_;
     # the "." obscures it from MyExtractUse.pm
     $podcoverage .= "\t-\$(PERLRUNINST) -e 'use "."Pod::Coverage package=>$class'\n";
   }
@@ -321,8 +327,17 @@ check-debug-constants:
 	if egrep -nH 'DEBUG => [1-9]|^[ \t]*use Smart::Comments' $(EXE_FILES) $(TO_INST_PM) t/*.t xt/*.t; then exit 1; else exit 0; fi
 
 check-spelling:
-	if find . -type f | egrep -v '(Makefile|dist-deb)' | xargs egrep --color=always -nHi '[r]efering|[w]riteable|[n]ineth|\b[o]mmitt?ed|[o]mited|[$$][rd]elf|[r]equrie|[n]oticable|[c]ontinous|[e]xistant|[e]xplict|[a]gument|[d]estionation|\b[t]he the\b|\b[n]ote sure\b'; \
+	if find . -type f | egrep -v '(Makefile|dist-deb)' | xargs egrep --color=always -nHi '[c]usor|[r]efering|[w]riteable|[n]ineth|\b[o]mmitt?ed|[o]mited|[$$][rd]elf|[r]equrie|[n]oticable|[c]ontinous|[e]xistant|[e]xplict|[a]gument|[d]estionation|\b[t]he the\b|\b[n]ote sure\b'; \
 	then false; else true; fi
+HERE
+
+  $post .= "\n";
+  $post .= ("MY_EXTRA_FILE_PART_OF = " 
+            . ($my_options{'MY_EXTRA_FILE_PART_OF'}||'')
+            . "\n");
+  $post .= <<'HERE';
+check-file-part-of:
+	if grep --text 'This file is'' part of ' -r . | egrep -iv '$(DISTNAME)$(MY_EXTRA_FILE_PART_OF)'; then false; else true; fi
 
 diff-prev:
 	rm -rf diff.tmp

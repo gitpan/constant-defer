@@ -16,6 +16,7 @@ devel/Memoize/ToConstant.pm
 devel/Memoize/ToConstant.t
 devel/MyConstantDeferExport.pm
 devel/name.pl
+devel/package-constants.pl
 devel/run.pl
 devel/Singleton/Const.pm
 devel/walk.pl

@@ -1,6 +1,6 @@
 # MyTestHelpers.pm -- my shared test script helpers
 
-# Copyright 2008, 2009, 2010 Kevin Ryde
+# Copyright 2008, 2009, 2010, 2011 Kevin Ryde
 
 # MyTestHelpers.pm is shared by several distributions.
 #
@@ -19,7 +19,6 @@
 
 package MyTestHelpers;
 use strict;
-use warnings;
 use Exporter;
 use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS);
 
@@ -54,14 +53,39 @@ sub DEBUG { 0 }
   }
   END {
     if ($warning_count) {
-      require Test::More;
-      Test::More::diag("Saw $warning_count warning(s):");
-      Test::More::diag($stacktraces);
-      Test::More::diag("Exit code 1 for warnings");
+      diag("Saw $warning_count warning(s):");
+      if (defined $stacktraces) {
+        diag($stacktraces);
+      } else {
+        diag('(Devel::StackTrace not available for backtrace)');
+      }
+      diag("Exit code 1 for warnings");
       $? = 1;
     }
   }
 }
+
+sub diag {
+  if (Test::More->can('diag')) {
+    Test::More::diag (@_);
+  } else {
+    my $msg = join('', map {defined($_)?$_:'[undef]'} @_)."\n";
+    $msg =~ s/^/# /mg;
+    print STDERR $msg;
+  }
+}
+
+sub dump {
+  my ($thing) = @_;
+  if (eval { require Data::Dumper; 1 }) {
+    diag (Data::Dumper::Dumper ($thing));
+  } else {
+    diag ("Data::Dumper not available");
+  }    
+}
+
+#-----------------------------------------------------------------------------
+# Test::Weaken and other weaking
 
 sub findrefs {
   my ($obj) = @_;
@@ -69,12 +93,31 @@ sub findrefs {
   defined $obj or return;
   require Scalar::Util;
   if (ref $obj && Scalar::Util::reftype($obj) eq 'HASH') {
-    Test::More::diag ("Keys: ", join(',', keys %$obj), "\n");
+    Test::More::diag ("Keys: ",
+                      join(' ',
+                           map {"$_=$obj->{$_}"} keys %$obj));
   }
   if (eval { require Devel::FindRef }) {
     Test::More::diag (Devel::FindRef::track($obj, 8));
   } else {
     Test::More::diag ("Devel::FindRef not available -- $@\n");
+  }
+}
+
+sub test_weaken_show_leaks {
+  my ($leaks) = @_;
+  $leaks || return;
+  eval { # explain new in 0.82
+    Test::More::diag ("Test-Weaken ",Test::More::explain($leaks));
+  };
+
+  my $unfreed = $leaks->unfreed_proberefs;
+  foreach my $proberef (@$unfreed) {
+    Test::More::diag ("  unfreed $proberef");
+  }
+  foreach my $proberef (@$unfreed) {
+    Test::More::diag ("search $proberef");
+    MyTestHelpers::findrefs($proberef);
   }
 }
 

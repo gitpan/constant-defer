@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2009 Kevin Ryde
+# Copyright 2009, 2011 Kevin Ryde
 
 # This file is part of constant-defer.
 #
@@ -18,7 +18,6 @@
 # with constant-defer.  If not, see <http://www.gnu.org/licenses/>.
 
 use strict;
-use warnings;
 use ExtUtils::MakeMaker;
 use lib 'inc';
 use MyMakeMakerExtras;
@@ -28,36 +27,38 @@ MyMakeMakerExtras::WriteMakefile
    ABSTRACT     => 'Constant subs with deferred value calculation.',
    VERSION_FROM => 'lib/constant/defer.pm',
    PREREQ_PM    => {
-                    'Test::More' => 0,
-                    'warnings' => 0,
                     'vars' => 0,
+
+                    # for testing ...
+                    'Test' => 0,
                    },
    AUTHOR       => 'Kevin Ryde <user42@zip.com.au>',
    LICENSE      => 'gpl',
    SIGN         => 1,
+   # probably anything
+   MIN_PERL_VERSION => '5',
 
-   META_MERGE
-   => { resources
-        => { homepage
-             => 'http://user42.tuxfamily.org/constant-defer/index.html',
-           },
-        optional_features
-        => { maximum_tests
-             => { description => 'Have "make test" do as much as possible.',
-                  requires => { 'Scalar::Util'     => 0,
-                                'Test::NoWarnings' => 0,
-                              },
-                },
-             maximum_devel
-             => { description => 'Stuff used variously for development.',
-                  requires => { 'base'         => 0,
-                                'Data::Dumper' => 0,
-                                'File::Spec'   => 0,
-                                'lib::abs'     => 0,
-                                'Scalar::Util' => 0,
-                                'warnings'     => 0,
-                              },
-                },
-           },
-      },
+   META_MERGE =>
+   { resources =>
+     { homepage => 'http://user42.tuxfamily.org/constant-defer/index.html',
+     },
+     optional_features =>
+     { maximum_tests =>
+       { description => 'Have "make test" do as much as possible.',
+         requires => { 'Scalar::Util'     => 0,
+                       'Test::NoWarnings' => 0,
+                     },
+       },
+       maximum_devel =>
+       { description => 'Stuff used variously for development.',
+         requires => { 'base'         => 0,
+                       'Data::Dumper' => 0,
+                       'File::Spec'   => 0,
+                       'lib::abs'     => 0,
+                       'Scalar::Util' => 0,
+                       'warnings'     => 0,
+                     },
+       },
+     },
+   },
   );
